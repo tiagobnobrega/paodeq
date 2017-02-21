@@ -312,6 +312,11 @@ function receivedMessage(event) {
         sendAccountLinking(senderID);
         break;
 
+      case 'pao':
+          registerId(senderID);
+          sendTextMessage(senderID, "você será notificado quando o pao de queijo estiver pronto");
+          break;
+          
       default:
         sendTextMessage(senderID, messageText);
     }
@@ -319,6 +324,18 @@ function receivedMessage(event) {
     sendTextMessage(senderID, "Message with attachment received");
   }
 }
+
+var idsFB =[];
+
+function registerId(senderID){
+    idsFB.push(senderID);
+}
+
+app.get('/paodequeijo', function(req, res) {
+    idsFB.forEach(function(id){
+        sendTextMessage(id, "O pao de queijo te espera na loja! :)");
+    });
+});
 
 
 /*
