@@ -1,6 +1,6 @@
 {
-    "appSecret": "EAAFZBhVPLFDMBAMAHvLnElOQ4h7xkKalAdZAzGZC9WnKKZCSJ1ylZAnEdBFO41f9ZAWWZBiMUKvqv6lf9bluUOVoBCxykw1EZCfIZCRM4MaiTmDZC2rLCmAfbttqhpjp6mwaNMZCvsAqGEZB4TnzMkcWhpwgHj8rvZBaPVxWH4iyql3uFegZDZD",
+    "appSecret": "420586078278707",
     "pageAccessToken": "EAAFZBhVPLFDMBAMAHvLnElOQ4h7xkKalAdZAzGZC9WnKKZCSJ1ylZAnEdBFO41f9ZAWWZBiMUKvqv6lf9bluUOVoBCxykw1EZCfIZCRM4MaiTmDZC2rLCmAfbttqhpjp6mwaNMZCvsAqGEZB4TnzMkcWhpwgHj8rvZBaPVxWH4iyql3uFegZDZD",
     "validationToken": "token-paodeq-lasa",
-    "serverURL": "herokuurl"
+    "serverURL": "https://paodeq.herokuapp.com/"
 }
