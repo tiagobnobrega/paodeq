@@ -56,7 +56,6 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
   process.exit(1);
 }
 
-
 app.get('/policy', function(req, res) {
         console.log("Validating webhook");
         res.status(200).send('MIT Policy');
