@@ -179,9 +179,9 @@ var paodequeijo = function(store){
 
     me.handleNotifications = function(){
         var usersToNotify = store.getUsers().filter(function(user){
-            var shouldNotify = currUser.mode!= NOTIFY_MODES.NEVER;
-            if(currUser.mode===NOTIFY_MODES.ONCE){
-                currUser.mode = NOTIFY_MODES.NEVER;
+            var shouldNotify = user.mode!= NOTIFY_MODES.NEVER;
+            if(user.mode===NOTIFY_MODES.ONCE){
+                user.mode = NOTIFY_MODES.NEVER;
             }
             return shouldNotify;
         })

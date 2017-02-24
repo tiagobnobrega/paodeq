@@ -17,7 +17,7 @@ const
   express = require('express'),
   https = require('https'),  
   request = require('request'),
-  pqd = require('./conversation/paodequeijo');
+  pdq = require('./conversation/paodequeijo');
 
 var app = express();
 app.set('port', process.env.PORT || 5000);
@@ -245,7 +245,7 @@ function receivedMessage(event) {
     var quickReplyPayload = quickReply.payload;
     console.log("Quick reply for message %s with payload %s", messageId, quickReplyPayload);
 
-      replyMsg = pqd.handleQuickReply(senderID,quickReplyPayload);
+      replyMsg = pdq.handleQuickReply(senderID,quickReplyPayload);
 
       if(replyMsg) callSendAPI(replyMsg);
     return;
@@ -253,7 +253,7 @@ function receivedMessage(event) {
 
   if (messageText) {
       console.log('Processando mensagem de texto:', senderID, messageText);
-        replyMsg = pqd.handleMessage(senderID,messageText);
+        replyMsg = pdq.handleMessage(senderID,messageText);
         console.log('replyMsg',JSON.stringify(replyMsg,null,2));
       // sendQuickReply(senderID);
       if(replyMsg) callSendAPI(replyMsg);
@@ -263,12 +263,11 @@ function receivedMessage(event) {
 }
 
 app.get('/paodequeijo', function(req, res) {
-
     var messages = pdq.handleNotifications();
     messages.forEach(function(msg){
         callSendAPI(msg);
     });
-    res.status(200).send("Notificação de pao de queijo enviada para %s pessoas."+messages.length);
+    res.status(200).send("Notificação de pão de queijo enviada para "+messages.length+" pessoas.");
 });
 
 
