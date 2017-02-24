@@ -8,7 +8,7 @@ const NOTIFY_MODES ={
 
 const PAO_DE_QUEIJO_PRONTO_MSGS = [
     "Uma fornada de pão de queijo te espera na lojinha.",
-    "Corra para alojinha, uma fornada de pão de queijo acabou de sair",
+    "Corra para a lojinha, uma fornada de pão de queijo acabou de sair",
     "Hum.... Uma fornada quentinha de pão de queijo acabou de sair na lojinha. Corre lá!",
     "Atenção! Pão de queijo na loja. Corre lá antes que acabe!"
 ];
