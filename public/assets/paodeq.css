@@ -64,7 +64,21 @@ body {
     -webkit-transform: translateY(10px);
     transform: translateY(10px);
 }
-
+.btn-big-red:after{
+    background-image: url('img/bread.png');
+    display: block;
+    height: 100px;
+    width: 100px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    content: '';
+    margin-left: 44px;
+    margin-top: -33px;
+}
 .btn-big-red.loading:after{
-    content: 'Carregando...'
+    content: 'Carregando...';
+    background-image: none;
+    margin-top: 10px;
+    margin-left: 11px;
 }
