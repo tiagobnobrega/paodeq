@@ -30,6 +30,10 @@ app.use(express.static('public'));
  * set them using environment variables or modifying the config file in /config.
  *
  */
+//Paodeq API Secret
+const PAODEQ_API_SECRET = (process.env.PAODEQ_APP_SECRET) ?
+    process.env.PAODEQ_APP_SECRET :
+    config.get('paodeqSecret');
 
 // App Secret can be retrieved from the App Dashboard
 const APP_SECRET = (process.env.MESSENGER_APP_SECRET) ? 
@@ -262,12 +266,34 @@ function receivedMessage(event) {
   }
 }
 
-app.get('/paodequeijo', function(req, res) {
-    var messages = pdq.handleNotifications();
-    messages.forEach(function(msg){
-        callSendAPI(msg);
-    });
-    res.status(200).send("Notificação de pão de queijo enviada para "+messages.length+" pessoas.");
+function verifySecretParam (secret){
+    if(!secret) return false;
+    return secret === PAODEQ_API_SECRET
+};
+
+app.get('/paodequeijo/:secret', function(req, res) {
+    // var secret = req.headers["secret"];
+    var secret = req.params.secret;
+  if(verifySecretParam(secret)){
+      var messages = pdq.handleNotifications();
+      messages.forEach(function(msg){
+          callSendAPI(msg);
+      });
+      res.status(200).send("Notificação de pão de queijo enviada para "+messages.length+" pessoas.");
+  }else{
+      res.status(403).send("Chave de api inválida.");
+  }
+});
+
+app.get('/loginpaodequeijo/:secret', function(req, res) {
+    // var secret = req.headers["secret"];
+    var secret = req.params.secret;
+    console.log('secret: %s',secret);
+    if(verifySecretParam(secret)){
+        res.status(200).send("Login efetuado com sucesso.");
+    }else{
+        res.status(403).send("Chave de api inválida.");
+    }
 });
 
 

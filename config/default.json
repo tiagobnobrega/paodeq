@@ -2,5 +2,6 @@
     "appSecret": "a4cc61d4a382b4c19f0fd3ad97a928cd",
     "pageAccessToken": "EAAFZBhVPLFDMBAPXE1RMGBLTjMZC4PKOijzXBf07VtUwOIcZBnRk45zlj9lLAoeWceSpUyAz4Pa0ELgOfimXNj3XSV1EZAnReBOGZCTZAt2E2XpAoWemTtCPtVbOVuscyZBHUPFbRLjIHtJKOHAmoCx8ZB2ttejKdeG5sZCsLcfR1kAZDZD",
     "validationToken": "token-paodeq-lasa",
-    "serverURL": "https://paodeq.herokuapp.com/"
+    "serverURL": "https://paodeq.herokuapp.com/",
+    "paodeqSecret": "pdqlasa2017"
 }
