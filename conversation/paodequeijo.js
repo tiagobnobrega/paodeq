@@ -184,11 +184,11 @@ var paodequeijo = function(store){
                 user.mode = NOTIFY_MODES.NEVER;
             }
             return shouldNotify;
-        })
+        });
 
         var notifications = usersToNotify.map(function(user){
             return reply.NOTIFY_PAO_DE_QUEIJO(user);
-        })
+        });
 
         return notifications;
 

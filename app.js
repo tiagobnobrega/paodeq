@@ -17,7 +17,8 @@ const
   express = require('express'),
   https = require('https'),  
   request = require('request'),
-  pdq = require('./conversation/paodequeijo');
+  pdq = require('./conversation/paodequeijo'),
+  db = require('./db/db-postgres');
 
 var app = express();
 app.set('port', process.env.PORT || 5000);
@@ -83,7 +84,6 @@ app.get('/webhook', function(req, res) {
     res.sendStatus(403);          
   }  
 });
-
 
 /*
  * All callbacks for Messenger are POST-ed. They will be sent to the same
@@ -572,12 +572,21 @@ function callSendAPI(messageData) {
   });  
 }
 
-// Start server
-// Webhooks must be available via SSL with a certificate signed by a valid 
-// certificate authority.
-app.listen(app.get('port'), function() {
-  console.log('Node app is running on port', app.get('port'));
+let startServer = function startServer(){
+  // Start server
+  // Webhooks must be available via SSL with a certificate signed by a valid
+  // certificate authority.
+  app.listen(app.get('port'), function() {
+    console.log('Node app is running on port', app.get('port'));
+  });
+};
+
+console.log('Inicializando a database...');
+db.init(function(){
+  console.log('inicializando o servidor...')
+    startServer();
 });
+
 
 module.exports = app;
 
