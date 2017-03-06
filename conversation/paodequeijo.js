@@ -13,32 +13,34 @@ const PAO_DE_QUEIJO_PRONTO_MSGS = [
     "Atenção! Pão de queijo na loja. Corre lá antes que acabe!"
 ];
 
-const store = function(){
-    var me = {};
-    var data = {
-        'users':{}
-    };
+// const store = function(){
+//     var me = {};
+//     var data = {
+//         'users':{}
+//     };
+//
+//     me.addUser = function(userId){
+//         var user = ( data.users[userId] || {'id':userId, 'context':{}, 'mode':NOTIFY_MODES.NEVER} );
+//         user.dtInclusao = new Date();
+//         user.lastIteration = new Date();
+//         data.users[userId] = user;
+//         return user;
+//     };
+//
+//
+//     me.getUsers = function(){
+//         return Object.keys(data.users).map(function(key,ind){
+//             return data.users[key];
+//         });
+//     };
+//     me.getUser = function(userId){
+//         return data.users[userId];
+//     };
+//
+//     return me;
+// }();
 
-    me.addUser = function(userId){
-        var user = ( data.users[userId] || {'id':userId, 'context':{}, 'mode':NOTIFY_MODES.NEVER} );
-        user.dtInclusao = new Date();
-        user.lastIteration = new Date();
-        data.users[userId] = user;
-        return user;
-    };
-
-
-    me.getUsers = function(){
-        return Object.keys(data.users).map(function(key,ind){
-            return data.users[key];
-        });
-    };
-    me.getUser = function(userId){
-        return data.users[userId];
-    };
-
-    return me;
-}();
+const store = require('../db/store-usuarios');
 
 var paodequeijo = function(store){
     var me={};
@@ -124,8 +126,6 @@ var paodequeijo = function(store){
         }
     };
 
-
-
     var isUserInConversation = function(){
 
     };
@@ -134,7 +134,6 @@ var paodequeijo = function(store){
         return (quickReplyOpt.questionContext=='PDQ.NOTIFY_METHOD');
     };
 
-
     var shouldProcessMessage = function(messageText){
        var regexp = new RegExp(regexPattern, 'im');
         // console.log('testando mensagem: "%s".',messageText.trim());
@@ -142,59 +141,100 @@ var paodequeijo = function(store){
         // console.log('resultado:%s.',test);
         return test;
     };
-
-    var getReply = function(userId){
-        var user = store.getUser(userId);
-        if(!user){
-            console.log('Primeira iteração do usuário');
-            //primeira iteração.
-            user = store.addUser(userId);
-            console.log('user',user);
-            return reply.GRETINGS(user);
-        }else{
-            console.log('usuário já encontrado:',user);
-            user.lastIteration = new Date();
-            var msg =reply.WELCOME_BACK(user);
-            console.log(msg);
-            return msg;
-        }
+    let resolveUser = function(userId,cb){
+        store.getUser(userId, function(err,user){
+           if(err) cb(err);
+           if(!user){
+               store.addUser(userId,function(err, newUser){
+                   if(err) cb(err);
+                   if(!newUser) cb(new Error('Não foi possivel resolver o usuário.'))
+                   cb(null, newUser);
+               });
+           }else{
+               cb(null,user);
+           }
+        });
     };
 
-    me.handleMessage = function(userId,messageText){
+    let getReply = function(userId,cb){
+        store.getUser(userId, function(err,user){
+            if(err) cb(err);
+            console.log('getUser Callback');
+            if(!user){
+                console.log('Primeira iteração do usuário');
+                //primeira iteração.
+                store.addUser(userId,function(err,user){
+                    if (err) throw err;
+                    console.log('user',user);
+                    cb(null,reply.GRETINGS(user));
+                });
+            }else{
+                console.log('usuário já encontrado:',user);
+                user.lastIteration = new Date();
+                store.updateUser(user,function(err){
+                    if(err) throw err;
+                    var msg =reply.WELCOME_BACK(user);
+                    console.log(msg);
+                    cb(null,msg);
+                });
+            }
+        });
+    };
+
+    me.handleMessage = function(userId, messageText, callback){
         if(shouldProcessMessage(messageText)){
             console.log("processando a mensagem");
-            return getReply(userId);
+            return getReply(userId,callback);
         }
         return null;
     };
 
-    me.handleQuickReply = function(userId,payload){
+    me.handleQuickReply = function(userId,payload, callback){
         quickReplyOpt = JSON.parse(payload);
         if(shouldProcessQuickReply(quickReplyOpt)){
-            var user = (store.getUser(userId) || store.addUser(userId));
-            user.mode = quickReplyOpt.mode;
-            return reply.NOTIFY_DEFINED(user)
+            resolveUser(userId,function(err, user){
+                if(err) throw err;
+                user.mode = quickReplyOpt.mode;
+                store.updateUser(user,function(err){
+                    if(err) throw err;
+                    callback(null, reply.NOTIFY_DEFINED(user));
+                });
+
+            });
+
         }
     };
 
-    me.handleNotifications = function(){
-        var usersToNotify = store.getUsers().filter(function(user){
-            var shouldNotify = user.mode!= NOTIFY_MODES.NEVER;
-            if(user.mode===NOTIFY_MODES.ONCE){
-                user.mode = NOTIFY_MODES.NEVER;
-            }
-            return shouldNotify;
-        });
 
-        var notifications = usersToNotify.map(function(user){
-            return reply.NOTIFY_PAO_DE_QUEIJO(user);
-        });
-
-        return notifications;
+    let doHandleNotified = function(){
+        console.log('register: doHandleNotified');
+        return store.updateNotifiedByMode([store.NOTIFY_MODES.ONCE,store.NOTIFY_MODES.ALWAYS]);
+    };
+    let doHandleUpdateMode = function(){
+        console.log('register: doHandleUpdateMode');
+        return store.updateMode([store.NOTIFY_MODES.ONCE],store.NOTIFY_MODES.NEVER);
+    };
+    let doGetUsersToNotify = function(){
+        console.log('register: doGetUsersToNotify');
+        return store.getUsersByMode([store.NOTIFY_MODES.ONCE,store.NOTIFY_MODES.ALWAYS])
 
     };
+    let doBuildNotificationArray = function(usersToNotify){
+        console.log('run: doBuildNotificationArray');
+       return usersToNotify.map(function(user){
+            return reply.NOTIFY_PAO_DE_QUEIJO(user);
+        });
+    };
 
-
+    me.handleNotifications = function(cb){
+        return doHandleNotified.bind({})()
+            .then(doGetUsersToNotify)
+            .then(function(usersToNotify){this.usersToNotify = usersToNotify})
+            .then(doHandleUpdateMode)
+            .then(function(){return doBuildNotificationArray(this.usersToNotify)})
+            .then(function(data){cb(null,data)})
+            .catch(function(err){cb(err)});
+    };
     return me;
 }(store);
 

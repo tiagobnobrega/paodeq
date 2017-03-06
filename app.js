@@ -65,7 +65,6 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
   * FOO Policy page
  */
 app.get('/policy', function(req, res) {
-        console.log("Validating webhook");
         res.status(200).send('MIT Policy');
 });
 
@@ -248,19 +247,16 @@ function receivedMessage(event) {
   } else if (quickReply) {
     var quickReplyPayload = quickReply.payload;
     console.log("Quick reply for message %s with payload %s", messageId, quickReplyPayload);
-
-      replyMsg = pdq.handleQuickReply(senderID,quickReplyPayload);
-
-      if(replyMsg) callSendAPI(replyMsg);
+      pdq.handleQuickReply(senderID,quickReplyPayload,callSendAPI);
     return;
   }
 
   if (messageText) {
       console.log('Processando mensagem de texto:', senderID, messageText);
-        replyMsg = pdq.handleMessage(senderID,messageText);
-        console.log('replyMsg',JSON.stringify(replyMsg,null,2));
+        pdq.handleMessage(senderID,messageText,callSendAPI);
+      // console.log('replyMsg',JSON.stringify(replyMsg,null,2));
       // sendQuickReply(senderID);
-      if(replyMsg) callSendAPI(replyMsg);
+      // if(replyMsg) callSendAPI(replyMsg);
   } else if (messageAttachments) {
     sendTextMessage(senderID, "Message with attachment received");
   }
@@ -273,13 +269,15 @@ function verifySecretParam (secret){
 
 app.get('/paodequeijo/:secret', function(req, res) {
     // var secret = req.headers["secret"];
-    var secret = req.params.secret;
+  var secret = req.params.secret;SERVER_URL
   if(verifySecretParam(secret)){
-      var messages = pdq.handleNotifications();
-      messages.forEach(function(msg){
-          callSendAPI(msg);
+      pdq.handleNotifications(function(err,messages){
+        if(err) throw err;
+          messages.forEach(function(msg){
+              callSendAPI(null,msg);
+          });
+          res.status(200).send("Notificação de pão de queijo enviada para "+messages.length+" pessoas.");
       });
-      res.status(200).send("Notificação de pão de queijo enviada para "+messages.length+" pessoas.");
   }else{
       res.status(403).send("Chave de api inválida.");
   }
@@ -547,7 +545,8 @@ function sendTypingOn(recipientId) {
  * get the message id in a response 
  *
  */
-function callSendAPI(messageData) {
+function callSendAPI(err,messageData) {
+  if(err) throw err;
   request({
     uri: 'https://graph.facebook.com/v2.6/me/messages',
     qs: { access_token: PAGE_ACCESS_TOKEN },
@@ -582,8 +581,10 @@ let startServer = function startServer(){
 };
 
 console.log('Inicializando a database...');
-db.init(function(){
-  console.log('inicializando o servidor...')
+db.init(function(err){
+  if(err) throw err;
+
+  console.log('inicializando o servidor...');
     startServer();
 });
 

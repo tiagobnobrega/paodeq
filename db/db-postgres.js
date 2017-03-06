@@ -5,12 +5,12 @@ const _dbURL = process.env.DATABASE_URL || "postgres://uitkglgtmtapiq:a91bd500e3
 
 const createDbScript = [
     'CREATE TABLE IF NOT EXISTS \"USUARIOS\"('
-    +' \"CO_USUARIO\" Varchar NOT NULL,'
-    +' \"IN_MODO_MENSAGEM\" Bigint,'
-    +' \"DH_ULTIMA_MENSAGEM\" Timestamp'
+    +' \"CO_USUARIO\" Varchar(80) NOT NULL,'
+    +' \"IN_MODO_MENSAGEM\" Varchar(10),'
+    +' \"DH_ULTIMA_MENSAGEM\" Timestamp,'
+    +' \"DH_INCLUSAO\" Timestamp'
     +');'
     ,
-    'ALTER TABLE "USUARIOS" ADD COLUMN IF NOT EXISTS DH_INCLUSAO Timestamp;',
     'ALTER TABLE "USUARIOS" DROP CONSTRAINT IF EXISTS "PK_USUARIOS";',
     'ALTER TABLE "USUARIOS" ADD CONSTRAINT "PK_USUARIOS" PRIMARY KEY ("CO_USUARIO");'
 ];
@@ -37,9 +37,9 @@ const dbPg = function(dbURL){
     me.init = function(cb) {
         doTestConnection()
             .then(doCreateDb)
-            .then(cb)
+            .then(function(){cb(null)})
             .catch(function(err){
-            console.error(err.stack);
+                cb(err);
         });
     };
 
@@ -65,7 +65,7 @@ const dbPg = function(dbURL){
     };
 
     me.pool = pool;
-    me.query = function(test,values){
+    me.query = function(text,values){
         return pool.query(text, values)
     };
 
