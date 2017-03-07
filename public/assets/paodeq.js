@@ -76,7 +76,7 @@ $(function(){
                 showCancelButton: false,
                 closeOnConfirm: false,
                 animation: "slide-from-top",
-                inputPlaceholder: "Hopus Focus",
+                inputPlaceholder: "Hocus Pocus",
                 confirmButtonText: "Entrar",
                 confirmButtonColor: "#4caf50"
             },
