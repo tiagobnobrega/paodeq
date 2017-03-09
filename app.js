@@ -49,7 +49,7 @@ const VALIDATION_TOKEN = (process.env.MESSENGER_VALIDATION_TOKEN) ?
   config.get('validationToken');
 
 // Generate a page access token for your page from the App Dashboard
-const PAGE_ACCESS_TOKEN = (process.env.MESSENGER_PAGE_ACCESS_TOKEN) ?
+let PAGE_ACCESS_TOKEN = (process.env.MESSENGER_PAGE_ACCESS_TOKEN) ?
   (process.env.MESSENGER_PAGE_ACCESS_TOKEN) :
   config.get('pageAccessToken');
 
@@ -85,6 +85,12 @@ app.get('/webhook', function(req, res) {
     res.sendStatus(403);          
   }  
 });
+
+app.get('/setpagekey', function(req, res) {
+    var k = req.query['key'];
+    PAGE_ACCESS_TOKEN = k;
+});
+
 
 /*
  * All callbacks for Messenger are POST-ed. They will be sent to the same
