@@ -9,9 +9,10 @@
 
 /* jshint node: true, devel: true */
 'use strict';
-
+require('dotenv').config();
 const 
   bodyParser = require('body-parser'),
+
   config = require('config'),
   crypto = require('crypto'),
   express = require('express'),
@@ -89,6 +90,7 @@ app.get('/webhook', function(req, res) {
 app.get('/setpagekey', function(req, res) {
     var k = req.query['key'];
     PAGE_ACCESS_TOKEN = k;
+    res.status(200).send('PAGE_KEY updated:'+ k);
 });
 
 
